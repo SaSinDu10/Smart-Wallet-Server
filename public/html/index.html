@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table from JSON</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <h1>Students</h1>
+    <button type="button" onclick="showDialog()">Register New Student</button>
+    <br>
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <dialog id="regStudent">
+        <h2>Register Student</h2>
+        <p>Name</p>
+        <input type="text" id="studentName">
+        <button onclick="createStudent()">Create</button>
+        <button onclick="closeDialog()">Cancel</button>
+    </dialog>
+    <script>
+        function navigateToProfile() {
+            window.location.href = "studentProfile.html";
+        }
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

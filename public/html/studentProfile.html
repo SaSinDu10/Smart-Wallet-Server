@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Profile</title>
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+
+<body>
+  <h1 id="stName">Name</h1>
+  <button id="stActivate">Activete</button>
+  <table id="stTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h1>Enrolled Courses</h1>
+  <button onclick="showAssignCourse()">Assign a course</button>
+  <table id="coTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Course State</th>
+        <th>De-Assign</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <h1>Payment</h1>
+  <select id="paymentDropdown" onchange="getPaymentTable(event.target.value)">
+
+  </select>
+  <table id="paymentTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Period</th>
+        <th>Date Payed</th>
+        <th>Payment Done</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div id="paymentDetails"></div>
+  <dialog id="assignCourseDialog">
+    <h2>Assign Course</h2>
+    <p>Course</p>
+    <select id="courseDropdown">
+      <option value="Select a Course"></option>
+    </select>
+    <button onclick="assignCourse()">Assign</button>
+  </dialog>
+  <script src="../js/studentProfile.js"></script>
+</body>
+
+</html>

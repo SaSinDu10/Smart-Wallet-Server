@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table from JSON</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <h1>Courses</h1>
+    <button id="newCourse" onclick="showCreateCourseDialog()">Create New Course</button>
+    <br>
+    <table id="myTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Active</th>
+                <th>Payment Generation</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <dialog id="createDialog">
+        <h2>Create Course</h2>
+        <p>Name</p>
+        <input type="text" id="courseName">
+        <button onclick="createCourse()">Create</button>
+        <button onclick="closeCreateCourseDialog()">Cancel</button>
+    </dialog>
+    
+    
+    <script src="../js/courses.js"></script>
+</body>
+</html>

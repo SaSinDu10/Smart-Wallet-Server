@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+
+<body>
+    <div class="loginContainer">
+        <h2>Login</h2>
+        <form id="loginForm" class="loginForm">
+            <div>User Name</div>
+            <input id="usernameInput" type="text" placeholder="UserName">
+            <div>Password</div>
+            <input id="passwordInput" type="password" placeholder="Password">
+            <div><button id="submit-btn" onclick="navigateToLogin()" type="submit">Login</button></div>
+        </form>
+    </div>
+    <script>
+        function navigateToLogin() {
+            window.location.href = "dashboard.html";
+        }
+        </script>
+
+    <script src="../js/login.js"></script>
+</body>
+
+</html>
