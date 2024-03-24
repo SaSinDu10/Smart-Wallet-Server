@@ -4,15 +4,10 @@ async function login(username: string, password: string): Promise<void> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-            },
+                },
             body: JSON.stringify({
-                query: `
-                    mutation SignIn($username: String!, $password: String!) {
-                        SignIn(username: $username, password: $password)
-                    }`,
-                variables: { username, password },
+                username: username,
+                password: password
             }),
         });
 
@@ -34,14 +29,14 @@ async function login(username: string, password: string): Promise<void> {
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm") as HTMLFormElement;
-    console.log("Login form:", loginForm); // Check if loginForm is correctly selected
+    console.log("Login form:", loginForm);
     loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent default form submission
-        console.log("Form submitted"); // Check if the form submission event is triggered
+        event.preventDefault(); 
+        console.log("Form submitted"); 
         const formData = new FormData(loginForm);
         const myUsername = formData.get("myUsername") as string;
         const myPassword = formData.get("myPassword") as string;
-        console.log("Username:", myUsername, "Password:", myPassword); // Check if username and password are correctly retrieved
+        console.log("Username:", myUsername, "Password:", myPassword); 
         await login(myUsername, myPassword);
     });
 });

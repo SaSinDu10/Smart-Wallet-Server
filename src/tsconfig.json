@@ -1,13 +1,18 @@
-
-
 {
     "compilerOptions": {
-        "module": "NodeNext",
-        //"moduleResolution": "node",
-        "baseUrl": "src",
-        "outDir": "dist",
+        "target": "ESNext",
+        "module": "CommonJS",
+        "allowJs": false,
+        "declaration": false,
+        "declarationMap": false,
         "sourceMap": true,
-        "noImplicitAny": true,
-    },
-    //"include": ["src/**/**"],
+        "removeComments": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true
+    }
 }

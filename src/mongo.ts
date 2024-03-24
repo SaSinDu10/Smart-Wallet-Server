@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const connect = mongoose.connect("mongodb://localhost:27017/Login-tut");
 connect.then(() => {
@@ -8,8 +8,8 @@ connect.then(() => {
     console.log("Database cannot be connected");
 })
 
-const newSchema = new mongoose.Schema({
-    usename:{
+const userSchema = new mongoose.Schema({
+    username:{
         type:String,
         required:true
     },
@@ -19,6 +19,5 @@ const newSchema = new mongoose.Schema({
     }
 })
 
-const collection = mongoose.model("collection",newSchema);
+export const collection = mongoose.model("collection",userSchema);
 
-module.exports = collection
