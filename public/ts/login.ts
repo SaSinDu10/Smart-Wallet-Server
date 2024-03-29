@@ -1,6 +1,6 @@
 async function login(username: string, password: string): Promise<void> {
     try {
-        const response = await fetch("http://155.248.246.152:8081/graphql", {
+        const response = await fetch("http://localhost:5000/rest/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -25,7 +25,6 @@ async function login(username: string, password: string): Promise<void> {
         console.error("Login error:", error);
     }
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm") as HTMLFormElement;

@@ -18,25 +18,14 @@ function createStudent() {
 
 async function getStudents() {
   try {
-    const url = "http://155.248.246.152:8081/graphql";
-    const query = `
-            query Query {
-                GetStudents {
-                    _id
-                    isActive
-                    name
-                }
-            }
-        `;
+    const url = "http://localhost:5000/rest/students";
+    
     const options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-      },
-      body: JSON.stringify({ query }),
+        },
+      //body: JSON.stringify({ query }),
     };
     //console.log("test 1");
     const response = await fetch(url, options);
