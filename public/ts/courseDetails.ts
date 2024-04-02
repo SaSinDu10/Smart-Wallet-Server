@@ -173,7 +173,7 @@ async function genaratePayment() {
   const searchParams = new URLSearchParams(window.location.search);
   const courseId = searchParams.get('courseId');
 
-  const confirmed = alert("Are you sure you want to generate payment?");
+  //const confirmed = alert("Are you sure you want to generate payment?");
 
   try {
 
@@ -198,7 +198,7 @@ async function genaratePayment() {
     });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
-    const data = jsonResponse.data;
+    //const data = jsonResponse.data;
 
 
   } catch (error) {

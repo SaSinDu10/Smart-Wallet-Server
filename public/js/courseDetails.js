@@ -138,7 +138,6 @@ async function changeActivate(state) {
 async function genaratePayment() {
     const searchParams = new URLSearchParams(window.location.search);
     const courseId = searchParams.get('courseId');
-    const confirmed = alert("Are you sure you want to generate payment?");
     try {
         const response = await fetch("http://155.248.246.152:8081/graphql", {
             method: "POST",
@@ -160,7 +159,6 @@ async function genaratePayment() {
         });
         const jsonResponse = await response.json();
         console.log("Received data:", jsonResponse);
-        const data = jsonResponse.data;
     }
     catch (error) {
         console.error("Error:", error);

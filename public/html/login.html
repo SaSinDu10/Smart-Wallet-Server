@@ -13,18 +13,13 @@
         <h2>Login</h2>
         <form id="loginForm" class="loginForm">
             <div>User Name</div>
-            <input id="usernameInput" type="text" placeholder="UserName">
+            <input id="usernameInput" name="username" type="text" placeholder="UserName">
+            
             <div>Password</div>
-            <input id="passwordInput" type="password" placeholder="Password">
+            <input id="passwordInput" name="password" type="password" placeholder="Password">
             <div><button id="submit-btn" onclick="navigateToLogin()" type="submit">Login</button></div>
         </form>
     </div>
-    <script>
-        function navigateToLogin() {
-            window.location.href = "dashboard.html";
-        }
-        </script>
-
     <script src="../js/login.js"></script>
 </body>
 

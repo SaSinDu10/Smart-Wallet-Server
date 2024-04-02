@@ -35,8 +35,9 @@ model Payment {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   course    Course   @relation(fields: [courseId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
-  addedTime DateTime
-  payedTime DateTime
+  addedTime DateTime?
+  payedTime DateTime?
   courseId  String   @db.ObjectId
   studentId String   @db.ObjectId
+  markPaymentDone Boolean  @default(false)
 }

@@ -1,30 +1,25 @@
 "use strict";
 async function login(username, password) {
     try {
-        const response = await fetch("http://155.248.246.152:8081/graphql", {
+        const response = await fetch("/rest/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
             },
             body: JSON.stringify({
-                query: `
-                    mutation SignIn($username: String!, $password: String!) {
-                        SignIn(username: $username, password: $password)
-                    }`,
-                variables: { username, password },
+                username: username,
+                password: password
             }),
         });
         const jsonResponse = await response.json();
         console.log("Received data:", jsonResponse);
-        if (jsonResponse.data && jsonResponse.data.SignIn) {
-            const token = jsonResponse.data.SignIn;
+        if (jsonResponse.success) {
+            const token = jsonResponse.token;
             sessionStorage.setItem("AccessToken", token);
             window.location.href = "/dashboard.html";
         }
         else {
-            console.error("Login failed: Response data does not contain SignIn token", jsonResponse);
+            console.error("Login failed:", jsonResponse.message);
         }
     }
     catch (error) {
@@ -38,8 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
         event.preventDefault();
         console.log("Form submitted");
         const formData = new FormData(loginForm);
-        const myUsername = formData.get("myUsername");
-        const myPassword = formData.get("myPassword");
+        const myUsername = formData.get("username");
+        const myPassword = formData.get("password");
+        console.log(formData);
         console.log("Username:", myUsername, "Password:", myPassword);
         await login(myUsername, myPassword);
     });
