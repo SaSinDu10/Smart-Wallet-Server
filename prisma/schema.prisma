@@ -15,7 +15,7 @@ model User {
 
 model Student {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
+  name     String 
   isActive Boolean   @default(true)
   courses  Course[]
   Payment  Payment[]
@@ -26,8 +26,8 @@ model Course {
   name                  String
   isActive              Boolean
   lastPaymentGeneration DateTime?
-  Student               Student?  @relation(fields: [studentId], references: [id])
   studentId             String?   @db.ObjectId
+  Student               Student?  @relation(fields: [studentId], references: [id])
   Payment               Payment[]
 }
 

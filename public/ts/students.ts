@@ -18,33 +18,24 @@ function createStudent() {
 
 async function getStudents() {
   try {
-    const url = "http://localhost:5000/rest/students";
-    
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        },
-      //body: JSON.stringify({ query }),
-    };
-    //console.log("test 1");
-    const response = await fetch(url, options);
+    const response = await fetch("/rest/students", {
+      method: "GET",
+    });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
 
-    const data = jsonResponse.data;
-    if (data.GetStudents) {
+    if (jsonResponse) {
       const students: {
-        _id: String;
-        isActive: Boolean;
-        name: String;
-      }[] = data.GetStudents;
+        id: string;
+        isActive: boolean;
+        name: string;
+      }[] = jsonResponse;
 
       const studentsTableBody = document.getElementById("myTable")!.children[1];
       students.forEach((student) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-                    <td><a href="studentProfile.html?studentId=${student._id}">${student._id}</a></td>
+                    <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
                     <td>${student.name}</td>
                     <td>${student.isActive}</td>
                     
@@ -64,29 +55,15 @@ getStudents();
 
 async function addStudent(studentName: string) {
   try {
-    const url = "http://155.248.246.152:8081/graphql";
-    const query = `
-    mutation Mutation($student: StudentInput!) {
-      AddStudent(student: $student)
-    }
-        `;
-    const options = {
-      method: "POST",
+    const response = await fetch("/rest/students", {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-      },
-      body: JSON.stringify({
-        query: query,
-        variables: {
-          student: { name: studentName },
-        },
-      }),
-    };
-
-    const response = await fetch(url, options);
+        "Content-Type": "application/json"
+    },
+    method: "POST",
+    body: JSON.stringify({
+      name: studentName
+    })
+    });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
     location.reload();

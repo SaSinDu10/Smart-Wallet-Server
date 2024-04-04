@@ -27,7 +27,6 @@ app.post('/rest/login', async (req, res) => {
     }
 });
 
-
 //getStudents
 app.get('/rest/students', async (req, res) => {
     try {
@@ -42,8 +41,10 @@ app.get('/rest/students', async (req, res) => {
 app.get('/rest/students/:id', async (req, res) => {
     try {
         const studentId = req.params.id;
+
         const student = await prisma.student.findUnique({
-            where: { id: studentId }
+            where: { id: studentId },
+            include: {courses: true}
         });
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
@@ -69,13 +70,16 @@ app.post('/rest/students', async (req, res) => {
     }
 });
 
-//getCourses            ///// skip limit add
+//getCourses ///if loop for skip limit
 app.get('/rest/courses', async (req, res) => {
     try {
-        const courses = await prisma.course.findMany();
+        const courses = await prisma.course.findMany({
+            skip: req.query.skip? parseInt(req.query.skip as string) : 0,
+            take: req.query.limit? parseInt(req.query.limit as string) : 10,
+        });
         return res.json(courses);
     } catch (error: any) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error });
     }
 })
 
@@ -117,6 +121,7 @@ app.patch('/rest/students/:id', async (req, res) => {
     try {
         const studentId = req.params.id;
         const studentActiveState = req.body.isActive;
+
         const selectedStudent = await prisma.student.findUnique({
             where: {
                 id: studentId
@@ -125,11 +130,11 @@ app.patch('/rest/students/:id', async (req, res) => {
         if (!selectedStudent) {
             return res.status(404).json({ message: "Student not found" });
         }
-        const updateStudent = await prisma.student.update({
+        const updatedStudent = await prisma.student.update({
             where: { id: studentId },
             data: { isActive: studentActiveState }
         });
-        return res.json({ message: "Student Active state update successfully", student: updateStudent })
+        return res.json({ message: "Student Active state update successfully", student: updatedStudent })
 
     } catch (error: any) {
         return res.status(500).json({ message: error.message });

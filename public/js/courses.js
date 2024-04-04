@@ -14,35 +14,18 @@ function createCourse() {
 }
 async function getCourses() {
     try {
-        const response = await fetch("http://155.248.246.152:8081/graphql", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-            },
-            body: JSON.stringify({
-                query: `
-                query Query {
-                    GetCourses {
-                        name
-                        _id
-                        isActive
-                        lastPaymentGeneration
-                    }
-                }`,
-            }),
+        const response = await fetch("/rest/courses", {
+            method: 'GET'
         });
         const jsonResponse = await response.json();
         console.log("Received data:", jsonResponse);
-        const data = jsonResponse.data;
-        if (data.GetCourses) {
-            const courses = data.GetCourses;
+        if (jsonResponse) {
+            const courses = jsonResponse;
             const coursesTableBody = document.getElementById("myTable").children[1];
             courses.forEach((course) => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td><a href="courseDetails.html?courseId=${course._id}">${course._id}</a></td>
+                    <td><a href="course.html?courseId=${course.id}">${course.id}</a></td>
                     <td>${course.name}</td>
                     <td>${course.isActive}</td>
                     <td>${new Date(course.lastPaymentGeneration).toLocaleString()}</td>
@@ -62,22 +45,13 @@ async function getCourses() {
 getCourses();
 async function addCourse(courseName) {
     try {
-        const response = await fetch("http://155.248.246.152:8081/graphql", {
-            method: "POST",
+        const response = await fetch("/rest/courses", {
             headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
+                "Content-Type": "application/json"
             },
+            method: "POST",
             body: JSON.stringify({
-                query: `
-                mutation Mutation($course: CourseInput!) {
-                AddCourse(course: $course)
-            }
-        `,
-                variables: {
-                    course: { name: courseName },
-                },
+                name: courseName
             }),
         });
         const jsonResponse = await response.json();
