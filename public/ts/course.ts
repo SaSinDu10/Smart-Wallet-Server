@@ -3,116 +3,75 @@ async function getCourseDetails() {
   console.log(searchParams.get('courseId'));
 
   try {
-    const url = "http://155.248.246.152:8081/graphql";
-    const query = `
-          query Query($getCourseId: ObjectId!) {
-              GetCourse(id: $getCourseId) {
-                _id
-                isActive
-                lastPaymentGeneration
-                name
-                students {
-                  _id
-                  isActive
-                  name
-                  courses {
-                    lastPaymentGeneration
-                  }
-                }
-              }
-            }
-        `;
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-      },
-      body: JSON.stringify({
-        query: query,
-        variables: {
-          "getCourseId": searchParams.get('courseId')
-        }
-      }),
-    };
-    const response = await fetch(url, options);
-    const jsonResponse = await response.json();
-    console.log("Received data:", jsonResponse);
+    const response = await fetch(`/rest/courses/${searchParams.get('courseId')}`, {
+      method: "GET"
+    });
+    const course: {
+      id: string,
+      isActive: boolean,
+      lastPaymentGeneration: string,
+      name: string,
+      students: {
+        id: string,
+        isActive: boolean,
+        name: string
+      }[],
+      courses: {
+        lastPaymentGeneration: string
+      }[]
+    } = await response.json();
 
-    const data = jsonResponse.data;
-    if (data.GetCourse) {
-      const courseDetails: {
-        "_id": string,
-        "isActive": boolean,
-        "lastPaymentGeneration": number,
-        "name": string,
-        "students":
-        {
-          "_id": string,
-          "isActive": boolean,
-          "name": string
-        }[],
-        "courses":
-        {
-          "lastPaymentGeneration": number
-        }[]
-      } = data.GetCourse;
+    console.log(course);
 
-      if (courseDetails.isActive == true) {
-        document.getElementById("coActivate")!.innerText = "Deactivete";
+    if (course.isActive == true) {
+      document.getElementById("coActivate")!.innerText = "Deactivete";
+    } else {
+      document.getElementById("coActivate")!.innerText = "Activete";
+    }
+
+    document.getElementById("coActivate")!.addEventListener("click", async function () {
+      if (course.isActive == true) {
+        await changeActivate(false);
       } else {
-        document.getElementById("coActivate")!.innerText = "Activete";
+        await changeActivate(true);
       }
+    });
 
-      document.getElementById("coActivate")!.addEventListener("click", async function () {
-        if (courseDetails.isActive == true) {
-          await changeActivate(false);
-        } else {
-          await changeActivate(true);
-        }
-      })
+    const courseName = document.getElementById("coName") as HTMLElement;
+    courseName.textContent = course.name;
 
-      const courseName = document.getElementById("coName") as HTMLElement;
-      courseName.textContent = courseDetails.name;
+    const enrolledStudentTableBody = document.getElementById("coTable")!.children[1];
 
-      const enrolledStudentTableBody = document.getElementById("coTable")!.children[1];
-
-      courseDetails.students.forEach((student) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td><a href="studentProfile.html?studentId=${student._id}">${student._id}</a></td>
+    course.students.forEach((student) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
         <td>${student.name}</td>
         <td>${student.isActive}</td>
         
     `;
-        enrolledStudentTableBody.appendChild(row);
-      });
+      enrolledStudentTableBody.appendChild(row);
+    });
 
-      const studentTableBody = document.getElementById("courseDetailsTable")!.children[1];
-      const date = new Date(courseDetails.lastPaymentGeneration)
-      const isActiveLabel = courseDetails.isActive ? "Active Course" : "Discontinued Course";
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${courseDetails._id}</td>
+    const studentTableBody = document.getElementById("courseDetailsTable")!.children[1];
+    const date = new Date(course.lastPaymentGeneration)
+    const isActiveLabel = course.isActive ? "Active Course" : "Discontinued Course";
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${course.id}</td>
         <td>${isActiveLabel}</td>
         <td>${getMonthYear2(date)}</td>
-    `;
-      studentTableBody.appendChild(row);
+        `;
+    studentTableBody.appendChild(row);
 
-      const generatePaymentButton = document.getElementById("generatePaymentButton") as HTMLButtonElement;
-      generatePaymentButton.addEventListener("click", async () => {
-        alert("Generated payments");
-        await genaratePayment();
-      });
-
-
-
-      console.log("Table loaded successfully.");
-    } else {
-      console.error("Data received is not in the expected format");
-    }
+    const generatePaymentButton = document.getElementById("generatePaymentButton") as HTMLButtonElement;
+    generatePaymentButton.addEventListener("click", async () => {
+      
+      const result = await genaratePayments();
+      if (result !== false) {
+        alert(result.message);
+      }
+    });
   } catch (error) {
     console.error("Error:", error);
   }
@@ -121,45 +80,34 @@ async function getCourseDetails() {
 getCourseDetails()
 
 function getMonthYear2(date: Date) {
+  console.log(date);
+
   const month = date.toLocaleDateString('en-US', { month: 'long' });
   const year = date.getFullYear();
   return `${month} ${year}`;
 }
 
 async function changeActivate(state: boolean) {
-  const searchParams = new URLSearchParams(window.location.search);
-  const courseId = searchParams.get('courseId');
   try {
-    const response = await fetch("http://155.248.246.152:8081/graphql", {
-      method: "POST",
+    const searchParams = new URLSearchParams(window.location.search);
+    const response = await fetch(`/rest/courses/${searchParams.get('courseId')}`, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
+        "Content-Type": "application/json"
       },
+      method: "PATCH",
       body: JSON.stringify({
-        query: `
-          mutation Mutation($courseId: ObjectId!, $course: CourseUpdate!) {
-            UpdateCourse(courseId: $courseId, course: $course)
-          }
-        `,
-        variables: {
-          courseId: courseId,
-          course: { "isActive": state }
-        },
-      }),
+        isActive: state
+      })
     });
-    const jsonResponse: {
-      "data": {
-        "UpdateCourse": boolean
-      }
-    } = await response.json();
+    const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
 
-    const toggledActivate = jsonResponse.data.UpdateCourse;
-
-    if (toggledActivate == true) {
+    if (response.ok) {
+      alert("Are you sure?");
       location.reload();
+      console.log("State toggled successfully.");
+    } else {
+      console.log("Failed to update course state", jsonResponse);
     }
 
     console.log("State toggled successfully.");
@@ -169,40 +117,26 @@ async function changeActivate(state: boolean) {
 }
 
 
-async function genaratePayment() {
+async function genaratePayments() {
   const searchParams = new URLSearchParams(window.location.search);
   const courseId = searchParams.get('courseId');
 
-  //const confirmed = alert("Are you sure you want to generate payment?");
-
   try {
-
-    const response = await fetch("http://155.248.246.152:8081/graphql", {
-      method: "POST",
+    const response = await fetch(`/rest/courses/${courseId}/payments`, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        query: `
-            mutation Mutation($courseId: ObjectId!) {
-            GeneratePayments(courseId: $courseId)
-        }
-      `,
-        variables: {
-          "courseId": courseId
-        }
-      }),
+      method: "POST"
     });
-    const jsonResponse = await response.json();
+    const jsonResponse: {
+      message: string;
+    } = await response.json();
     console.log("Received data:", jsonResponse);
-    //const data = jsonResponse.data;
-
+    return jsonResponse;
 
   } catch (error) {
     console.error("Error:", error);
+    return false;
   }
 }
 

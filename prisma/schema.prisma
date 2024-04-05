@@ -14,11 +14,12 @@ model User {
 }
 
 model Student {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name     String 
-  isActive Boolean   @default(true)
-  courses  Course[]
-  Payment  Payment[]
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  isActive   Boolean   @default(true)
+  courses    Course[]  @relation(fields: [courseIds], references: [id])
+  courseIds  String[]  @db.ObjectId
+  payments   Payment[]
 }
 
 model Course {
@@ -26,18 +27,18 @@ model Course {
   name                  String
   isActive              Boolean
   lastPaymentGeneration DateTime?
-  studentId             String?   @db.ObjectId
-  Student               Student?  @relation(fields: [studentId], references: [id])
-  Payment               Payment[]
+  students              Student[] @relation(fields: [studentIds], references: [id])
+  studentIds            String[]  @db.ObjectId
+  payments              Payment[]
 }
 
 model Payment {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  course    Course   @relation(fields: [courseId], references: [id])
-  student   Student  @relation(fields: [studentId], references: [id])
-  addedTime DateTime?
-  payedTime DateTime?
-  courseId  String   @db.ObjectId
-  studentId String   @db.ObjectId
-  markPaymentDone Boolean  @default(false)
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  addedTime       DateTime?
+  payedTime       DateTime?
+  markPaymentDone Boolean   @default(false)
+  student         Student   @relation(fields: [studentId], references: [id])
+  studentId       String    @db.ObjectId
+  course          Course    @relation(fields: [courseId], references: [id])
+  courseId        String    @db.ObjectId
 }

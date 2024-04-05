@@ -44,7 +44,7 @@ app.get('/rest/students/:id', async (req, res) => {
 
         const student = await prisma.student.findUnique({
             where: { id: studentId },
-            include: {courses: true}
+            include: { courses: true }
         });
         if (!student) {
             return res.status(404).json({ message: 'Student not found' });
@@ -74,8 +74,8 @@ app.post('/rest/students', async (req, res) => {
 app.get('/rest/courses', async (req, res) => {
     try {
         const courses = await prisma.course.findMany({
-            skip: req.query.skip? parseInt(req.query.skip as string) : 0,
-            take: req.query.limit? parseInt(req.query.limit as string) : 10,
+            skip: req.query.skip ? parseInt(req.query.skip as string) : 0,
+            take: req.query.limit ? parseInt(req.query.limit as string) : 10,
         });
         return res.json(courses);
     } catch (error: any) {
@@ -88,7 +88,8 @@ app.get('/rest/courses/:id', async (req, res) => {
     try {
         const courseId = req.params.id;
         const course = await prisma.course.findUnique({
-            where: { id: courseId }
+            where: { id: courseId },
+            include: { students: true }
         });
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
@@ -202,27 +203,58 @@ app.post('/rest/students/:studentId/courses/:courseId', async (req, res) => {
 })
 
 //generatePayments
-app.post('/rest/courses/:courseId/students/:studentId/payments', async (req, res) => {
+app.post('/rest/courses/:courseId/payments', async (req, res) => {
     try {
         const courseId = req.params.courseId;
-        const studentId = req.params.studentId;
         const course = await prisma.course.findUnique({ where: { id: courseId } });
-
-        const student = await prisma.student.findUnique({ where: { id: studentId } });
-        if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
-        }
 
         if (!course) {
             return res.status(404).json({ message: 'Course not found' });
         }
-        const generatePayment = await prisma.payment.create({
-            data: {
-                studentId: studentId,
-                courseId: courseId,
+        const now = new Date()
+        const students = await prisma.student.findMany({
+            where: {
+                courseIds: {
+                    has: courseId
+                },
+                isActive: true,
+                payments: {
+                    none: {
+                        courseId: courseId,
+                        addedTime: {
+                            gt: new Date(now.getFullYear(), now.getMonth(), 1)
+                        }
+                    }
+                }
+            },
+            include: {
+                payments: true
             }
+        });
+        students.forEach(student => {
+
         })
-        return res.json({ message: 'Payment Generated Succefully', payment: generatePayment })
+        
+        if (students.length > 0) {
+            await prisma.payment.createMany({
+                data: students.map(student => {
+                    return {
+                        courseId: courseId,
+                        studentId: student.id,
+                        addedTime: now
+                    }
+                })
+            });
+            await prisma.course.update({
+                where: {
+                    id: courseId
+                },
+                data: {
+                    lastPaymentGeneration: now
+                }
+            })
+        }
+        return res.json({ message: `Generated ${students.length} payments` })
     } catch (error: any) {
         console.error("Failed to generate payment:", error);
         return res.status(500).json({ message: error })

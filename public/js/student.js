@@ -48,48 +48,58 @@ async function getStudentDetails() {
     }
 }
 getStudentDetails();
+async function paymentCourseSelect() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const studentId = searchParams.get('studentId');
+    try {
+        const response = await fetch(`/rest/students/${studentId}`, {
+            method: "GET"
+        });
+        const jsonResponse = await response.json();
+        console.log("Received data:122", jsonResponse);
+        const courses = jsonResponse.courses;
+        const paymentCourseDropdown = document.getElementById("paymentDropdown");
+        paymentCourseDropdown.innerHTML = "";
+        const optionDefault = document.createElement("option");
+        optionDefault.value = "";
+        optionDefault.textContent = "Select a Course";
+        optionDefault.disabled = true;
+        optionDefault.selected = true;
+        paymentCourseDropdown.appendChild(optionDefault);
+        courses.forEach(course => {
+            const option = document.createElement("option");
+            option.value = course.id;
+            option.textContent = course.name;
+            paymentCourseDropdown.appendChild(option);
+        });
+    }
+    catch (error) {
+        console.error("Error:", error);
+    }
+}
+paymentCourseSelect();
 async function getPaymentTable(courseId) {
     const searchParams = new URLSearchParams(window.location.search);
     console.log(searchParams.get("studentId"));
-    const response = await fetch("http://155.248.246.152:8081/graphql", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MDlkZTQyZGMyYjI3Y2Q4ZjE0MDE3OTEiLCJpYXQiOjE3MDU5MjgxMjN9.k_vS11NYSfhaHHOl7jjUl2t7UCfdTGeythCsk0Hr89g",
-        },
-        body: JSON.stringify({
-            query: `
-            query GetPayment($studentId: ObjectId!, $courseId: ObjectId!) {
-                GetPayments(studentId: $studentId, courseId: $courseId) {
-                    _id
-                    time {
-                        added
-                        payed
-                    }
-                }
-            }`,
-            variables: {
-                studentId: searchParams.get("studentId"),
-                courseId: courseId,
-            },
-        }),
+    const response = await fetch(`/rest/students/${searchParams.get("studentId")}`, {
+        method: "GET"
     });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
     const data = jsonResponse.data;
     console.log(data);
-    if (data.GetPayments) {
-        const payments = data.GetPayments;
+    if (data) {
+        const payments = data;
         const coursesTableBody = document.getElementById("paymentTable").children[1];
         coursesTableBody.innerHTML = "";
         payments.forEach((payment) => {
-            const date = new Date(payment.time.added);
-            const payDate = payment.time.payed ? new Date(payment.time.payed) : null;
-            const isPaymentDone = payment.time.payed ? "Done" : "Not Yet";
+            const date = new Date();
+            const payDate = payment.payedTime ? new Date() : null;
+            const isPaymentDone = payment.payedTime ? "Done" : "Not Yet";
             const row = document.createElement("tr");
             if (payDate) {
                 row.innerHTML = `
-                    <td>${payment._id}</td>
+                    <td>${payment.id}</td>
                     <td>${getMonthYear(date)}</td>
                     <td>${getPaidTime(payDate)}</td>
                     <td>${isPaymentDone}</td>
@@ -100,12 +110,12 @@ async function getPaymentTable(courseId) {
                 markAsPaidButton.textContent = "Mark as Paid";
                 markAsPaidButton.addEventListener("click", async () => {
                     alert("Are you sure?");
-                    await markPaymentDone(payment._id, row);
+                    await markPaymentDone(payment.id, row);
                 });
                 const cell = document.createElement("td");
                 cell.appendChild(markAsPaidButton);
                 row.innerHTML = `
-                    <td>${payment._id}</td>
+                    <td>${payment.id}</td>
                     <td>${getMonthYear(date)}</td>
                     <td></td>
                     <td>${isPaymentDone}</td>
@@ -187,7 +197,7 @@ async function assignCourse() {
     assignDialog();
     const searchParams = new URLSearchParams(window.location.search);
     try {
-        const response = await fetch(`/rest/students/${searchParams.get("studentId")}/courses/${searchParams.get("courseId")}`, {
+        const response = await fetch(`/rest/students/${searchParams.get("studentId")}/courses/${selectedCourseId}`, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -195,15 +205,17 @@ async function assignCourse() {
         });
         const jsonResponse = await response.json();
         console.log("Received data2:", jsonResponse);
-        console.log("State toggled successfully.");
+        location.reload();
     }
     catch (error) {
         console.error("Error:", error);
     }
 }
 async function removeCourse(courseId) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const studentId = searchParams.get('studentId');
     try {
-        const response = await fetch("/rest/students/:studentId/courses/:courseId", {
+        const response = await fetch(`/rest/students/${studentId}/courses/${courseId}`, {
             headers: {
                 "Content-Type": "application/json"
             },
