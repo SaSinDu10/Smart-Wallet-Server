@@ -1,11 +1,18 @@
 import * as express from "express";
 import * as cors from "cors";
 import { PrismaClient } from "@prisma/client";
+import * as session from "express-session";
 
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(session({
+    secret: 'keyboard cat',
+    cookie: {maxAge: 3600000},
+    resave: false,
+    saveUninitialized: true
+}))
 
 //login
 app.post('/rest/login', async (req, res) => {
@@ -13,6 +20,14 @@ app.post('/rest/login', async (req, res) => {
         const username = req.body.username;
         const password = req.body.password;
 
+        // if (username && password) {
+        //     if (req.session.authenticated) {
+        //         res.json(req.session);
+        //     } else {
+
+        //     }
+        // }
+        
         const user = await prisma.user.findUnique({ where: { username } });
         if (!user) {
             return res.status(404).json({ message: 'No such user' });
@@ -21,9 +36,12 @@ app.post('/rest/login', async (req, res) => {
         if (password !== user.password) {
             return res.status(401).json({ message: 'Invalid username or password' });
         }
+
+        //req.session.user = user;
+
         return res.json({ message: 'Login successful', user });
     } catch (error: any) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error });
     }
 });
 
@@ -162,13 +180,18 @@ app.patch("/rest/courses/:id", async (req, res) => {
     }
 })
 
-//getPayment
-app.get('/rest/students/:id', async (req, res) => {
+//getPayments
+app.get('/rest/students/:studentId/payments', async (req, res) => {
     try {
-        const paymnet = await prisma.student.findMany();
-        return res.json(paymnet);
+        const { studentId } = req.params;
+        const paymnets = await prisma.payment.findMany({
+            where:{
+                studentId: studentId
+            }
+        });
+        return res.json(paymnets);
     } catch (error: any) {
-        return res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error});
     }
 })
 
@@ -262,10 +285,11 @@ app.post('/rest/courses/:courseId/payments', async (req, res) => {
 })
 
 //markPaymentDone
-app.patch('/rest/payments/:id', async (req, res) => {
+app.patch('/rest/students/:studentId/payments/:paymentId', async (req, res) => {
     try {
-        const paymentId = req.params.id
-        const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
+        const paymentId = req.params.paymentId
+        const studentId = req.params.studentId
+        const payment = await prisma.payment.findUnique({ where: { id: paymentId, studentId: studentId } });
 
         if (!payment) {
             return res.status(404).json({ message: 'Payment not found' });
@@ -312,6 +336,7 @@ app.delete('/rest/students/:studentId/courses/:courseId', async (req, res) => {
         return res.status(500).json({ message: error })
     }
 })
+
 
 app.use(express.static('public'));
 

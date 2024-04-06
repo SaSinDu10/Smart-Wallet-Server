@@ -22,7 +22,6 @@ async function getStudentDetails() {
         studentName.textContent = student.name;
         const coursesTableBody = document.getElementById("coTable").children[1];
         student.courses.forEach((course) => {
-            console.log("Course:", course.id, course.name, course.isActive);
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><a href="course.html?courseId=${course.id}">${course.id}</a></td>
@@ -41,7 +40,6 @@ async function getStudentDetails() {
         `;
         console.log("Row HTML:", row.innerHTML);
         studentTableBody.appendChild(row);
-        console.log("First Table loaded successfully.");
     }
     catch (error) {
         console.error("Error:", error);
@@ -78,18 +76,16 @@ async function paymentCourseSelect() {
     }
 }
 paymentCourseSelect();
-async function getPaymentTable(courseId) {
+async function getPaymentTable() {
     const searchParams = new URLSearchParams(window.location.search);
     console.log(searchParams.get("studentId"));
-    const response = await fetch(`/rest/students/${searchParams.get("studentId")}`, {
+    const response = await fetch(`/rest/students/${searchParams.get("studentId")}/payments`, {
         method: "GET"
     });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
-    const data = jsonResponse.data;
-    console.log(data);
-    if (data) {
-        const payments = data;
+    if (jsonResponse) {
+        const payments = jsonResponse;
         const coursesTableBody = document.getElementById("paymentTable").children[1];
         coursesTableBody.innerHTML = "";
         payments.forEach((payment) => {
@@ -232,7 +228,9 @@ async function removeCourse(courseId) {
 }
 async function markPaymentDone(paymentId, row) {
     try {
-        const response = await fetch("/rest/payments/:id", {
+        const searchParams = new URLSearchParams(window.location.search);
+        const studentId = searchParams.get('studentId');
+        const response = await fetch(`/rest/students/${studentId}/payments/${paymentId}`, {
             headers: {
                 "Content-Type": "application/json"
             },

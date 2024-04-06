@@ -14,7 +14,6 @@ async function getStudentDetails() {
                 studentId?: string
             }[]
         } = await response.json();
-        //console.log("Received data:", student);
 
         if (student.isActive == true) {
             document.getElementById("stActivate")!.innerText = "Deactivete";
@@ -35,7 +34,7 @@ async function getStudentDetails() {
 
         const coursesTableBody = document.getElementById("coTable")!.children[1];
         student.courses.forEach((course) => {
-            console.log("Course:", course.id, course.name, course.isActive);
+            //console.log("Course:", course.id, course.name, course.isActive);
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><a href="course.html?courseId=${course.id}">${course.id}</a></td>
@@ -56,14 +55,13 @@ async function getStudentDetails() {
         console.log("Row HTML:", row.innerHTML);
         studentTableBody.appendChild(row);
 
-        console.log("First Table loaded successfully.");
+        //console.log("First Table loaded successfully.");
     } catch (error) {
         console.error("Error:", error);
     }
 }
 getStudentDetails();
 
-//to-do
 async function paymentCourseSelect() {
 
     const searchParams = new URLSearchParams(window.location.search);
@@ -109,25 +107,22 @@ async function paymentCourseSelect() {
 }
 paymentCourseSelect();
 
-async function getPaymentTable(courseId: string) {
+async function getPaymentTable() {
     const searchParams = new URLSearchParams(window.location.search);
     console.log(searchParams.get("studentId"));
-    const response = await fetch(`/rest/students/${searchParams.get("studentId")}`, {
+    const response = await fetch(`/rest/students/${searchParams.get("studentId")}/payments`, {
         method: "GET"
     });
     const jsonResponse = await response.json();
     console.log("Received data:", jsonResponse);
 
-    const data = jsonResponse.data;
-    console.log(data);
-
-    if (data) {
+    if (jsonResponse) {
         const payments: {
             id: string,
             markPaymentDone: boolean,
-            addedTime?: number,
-            payedTime?: number,
-        }[] = data;
+            addedTime?: string,
+            payedTime?: string,
+        }[] = jsonResponse;
 
         const coursesTableBody = document.getElementById("paymentTable")!.children[1];
         coursesTableBody.innerHTML = "";
@@ -283,9 +278,11 @@ async function removeCourse(courseId: string) {
     }
 }
 
-async function markPaymentDone(paymentId: string, row: HTMLElement) {
+async function markPaymentDone( paymentId: string, row: HTMLElement) {
     try {
-        const response = await fetch("/rest/payments/:id", {
+        const searchParams = new URLSearchParams(window.location.search);
+        const studentId = searchParams.get('studentId');
+        const response = await fetch(`/rest/students/${studentId}/payments/${paymentId}`, {
             headers: {
                 "Content-Type": "application/json"
             },
