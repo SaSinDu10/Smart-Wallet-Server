@@ -13,17 +13,17 @@ async function login(username, password) {
         });
         const jsonResponse = await response.json();
         console.log("Received data:", jsonResponse);
-        if (jsonResponse.success) {
+        if (response.ok) {
             const token = jsonResponse.token;
             sessionStorage.setItem("AccessToken", token);
-            window.location.href = "/dashboard.html";
+            window.location.href = "/html/dashboard.html";
         }
         else {
             console.error("Login failed:", jsonResponse.message);
         }
     }
     catch (error) {
-        console.error("Login error:", error);
+        console.error("Network error:", error);
     }
 }
 document.addEventListener("DOMContentLoaded", () => {

@@ -8,9 +8,9 @@
   <link rel="stylesheet" href="../css/main.css" />
 </head>
 
-<body>
+<body onload="main();">
   <h1 id="stName">Name</h1>
-  <button id="stActivate">Activete</button>
+  <button id="stActivate">Activate</button>
   <table id="stTable">
     <thead>
       <tr>
@@ -22,7 +22,7 @@
   </table>
 
   <h1>Enrolled Courses</h1>
-  <button onclick="showAssignCourse()">Assign a course</button>
+  <button id="btnShowAssignCourseDialog">Assign a course</button>
   <table id="coTable">
     <thead>
       <tr>
@@ -35,7 +35,7 @@
     <tbody></tbody>
   </table>
   <h1>Payments</h1>
-  <select id="paymentDropdown" onchange="getPaymentTable(event.target.value)">
+  <select id="paymentDropdown">
 
   </select>
   <table id="paymentTable">
@@ -56,7 +56,7 @@
     <select id="courseDropdown">
       <option value="Select a Course"></option>
     </select>
-    <button onclick="assignCourse()">Assign</button>
+    <button id="btnAssignCourse">Assign</button>
   </dialog>
   <script src="../js/student.js"></script>
 </body>

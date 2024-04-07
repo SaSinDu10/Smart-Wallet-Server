@@ -1,3 +1,4 @@
+
 import * as express from "express";
 import * as cors from "cors";
 import { PrismaClient } from "@prisma/client";
@@ -9,9 +10,10 @@ app.use(express.json());
 app.use(cors());
 app.use(session({
     secret: 'keyboard cat',
-    cookie: {maxAge: 3600000},
+    //cookie: {maxAge: 3600000},
+    name: "StudyPay",
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false
 }))
 
 //login
@@ -20,26 +22,44 @@ app.post('/rest/login', async (req, res) => {
         const username = req.body.username;
         const password = req.body.password;
 
-        // if (username && password) {
-        //     if (req.session.authenticated) {
-        //         res.json(req.session);
-        //     } else {
+        if (username && password) {
+            //@ts-ignore
+            if (req.session.username) {
+                const user = await prisma.user.findUnique({ where: { username } });
+                if (!user) {
+                    return res.status(404).json({ message: 'No such user' });
+                }
+                return res.json({ message: 'Already signed in' });
+            } else {
+                const user = await prisma.user.findUnique({ where: { username } });
+                if (!user) {
+                    return res.status(404).json({ message: 'No such user' });
+                }
 
-        //     }
+                if (password === user.password) {
+                    //@ts-ignore
+                    req.session.username = user.username;
+
+                    return res.json({ message: "Logging successfully" });
+
+                } else {
+                    return res.status(401).json({ message: "Wrong password" });
+                }
+            }
+        } else {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        // const user = await prisma.user.findUnique({ where: { username } });
+
+
+        // if (password !== user.password) {
+        //     return res.status(401).json({ message: 'Invalid username or password' });
         // }
-        
-        const user = await prisma.user.findUnique({ where: { username } });
-        if (!user) {
-            return res.status(404).json({ message: 'No such user' });
-        }
-
-        if (password !== user.password) {
-            return res.status(401).json({ message: 'Invalid username or password' });
-        }
 
         //req.session.user = user;
 
-        return res.json({ message: 'Login successful', user });
+        //return res.json({ message: 'Login successful', user });
     } catch (error: any) {
         return res.status(500).json({ message: error });
     }
@@ -181,19 +201,23 @@ app.patch("/rest/courses/:id", async (req, res) => {
 })
 
 //getPayments
-app.get('/rest/students/:studentId/payments', async (req, res) => {
+app.get('/rest/payments', async (req, res) => {
     try {
-        const { studentId } = req.params;
-        const paymnets = await prisma.payment.findMany({
+        const studentId = req.query.studentId;
+        const courseId = req.query.courseId;
+        const payments = await prisma.payment.findMany({
             where:{
-                studentId: studentId
+                studentId: studentId as string,
+                courseId: courseId as string
             }
         });
-        return res.json(paymnets);
+        return res.json(payments);
     } catch (error: any) {
-        return res.status(500).json({ message: error});
+        return res.status(500).json({ message: error });
     }
 })
+
+
 
 //assignCourseToStudent
 app.post('/rest/students/:studentId/courses/:courseId', async (req, res) => {
@@ -257,7 +281,7 @@ app.post('/rest/courses/:courseId/payments', async (req, res) => {
         students.forEach(student => {
 
         })
-        
+
         if (students.length > 0) {
             await prisma.payment.createMany({
                 data: students.map(student => {
@@ -297,7 +321,8 @@ app.patch('/rest/students/:studentId/payments/:paymentId', async (req, res) => {
         const updatedPayment = await prisma.payment.update({
             where: { id: paymentId },
             data: {
-                markPaymentDone: true
+                markPaymentDone: true,
+                payedTime: new Date()
             }
         });
         return res.json({ message: 'Payment marked as done', payment: updatedPayment });
