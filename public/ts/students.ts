@@ -1,26 +1,4 @@
-function students () {
-
-}
-
-function showDialog() {
-  const dialog = document.getElementById("regStudent") as HTMLDialogElement;
-  dialog.showModal();
-}
-
-function closeDialog() {
-  const dialog = document.getElementById("regStudent") as HTMLDialogElement;
-  dialog.close();
-}
-
-function createStudent() {
-  const studentName = document.getElementById(
-    "studentName"
-  ) as HTMLInputElement;
-  closeDialog();
-  addStudent(studentName.value);
-}
-
-async function getStudents() {
+async function students () {
   try {
     const response = await fetch("/rest/students", {
       method: "GET",
@@ -56,7 +34,24 @@ async function getStudents() {
     console.error("Error:", error);
   }
 }
-getStudents();
+
+function showDialog() {
+  const dialog = document.getElementById("regStudent") as HTMLDialogElement;
+  dialog.showModal();
+}
+
+function closeDialog() {
+  const dialog = document.getElementById("regStudent") as HTMLDialogElement;
+  dialog.close();
+}
+
+function createStudent() {
+  const studentName = document.getElementById(
+    "studentName"
+  ) as HTMLInputElement;
+  closeDialog();
+  addStudent(studentName.value);
+}
 
 async function addStudent(studentName: string) {
   try {

@@ -1,5 +1,5 @@
 "use strict";
-async function getCourseDetails() {
+async function course() {
     const searchParams = new URLSearchParams(window.location.search);
     console.log(searchParams.get('courseId'));
     try {
@@ -7,7 +7,8 @@ async function getCourseDetails() {
             method: "GET"
         });
         const course = await response.json();
-        console.log(course);
+        const courseName = document.getElementById("coName");
+        courseName.textContent = course.name;
         if (course.isActive == true) {
             document.getElementById("coActivate").innerText = "Deactivate";
         }
@@ -16,14 +17,22 @@ async function getCourseDetails() {
         }
         document.getElementById("coActivate").addEventListener("click", async function () {
             if (course.isActive == true) {
-                await changeActivate(false);
+                await activateCourse(false);
             }
             else {
-                await changeActivate(true);
+                await activateCourse(true);
             }
         });
-        const courseName = document.getElementById("coName");
-        courseName.textContent = course.name;
+        const studentTableBody = document.getElementById("courseDetailsTable").children[1];
+        const date = new Date(course.lastPaymentGeneration);
+        const isActiveLabel = course.isActive ? "Active Course" : "Discontinued Course";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${course.id}</td>
+        <td>${isActiveLabel}</td>
+        <td>${getMonthYear2(date)}</td>
+        `;
+        studentTableBody.appendChild(row);
         const enrolledStudentTableBody = document.getElementById("coTable").children[1];
         course.students.forEach((student) => {
             const row = document.createElement("tr");
@@ -36,16 +45,6 @@ async function getCourseDetails() {
     `;
             enrolledStudentTableBody.appendChild(row);
         });
-        const studentTableBody = document.getElementById("courseDetailsTable").children[1];
-        const date = new Date(course.lastPaymentGeneration);
-        const isActiveLabel = course.isActive ? "Active Course" : "Discontinued Course";
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td>${course.id}</td>
-        <td>${isActiveLabel}</td>
-        <td>${getMonthYear2(date)}</td>
-        `;
-        studentTableBody.appendChild(row);
         const generatePaymentButton = document.getElementById("generatePaymentButton");
         generatePaymentButton.addEventListener("click", async () => {
             const result = await generatePayments();
@@ -58,14 +57,13 @@ async function getCourseDetails() {
         console.error("Error:", error);
     }
 }
-getCourseDetails();
 function getMonthYear2(date) {
     console.log(date);
     const month = date.toLocaleDateString('en-US', { month: 'long' });
     const year = date.getFullYear();
     return `${month} ${year}`;
 }
-async function changeActivate(state) {
+async function activateCourse(state) {
     try {
         const searchParams = new URLSearchParams(window.location.search);
         const response = await fetch(`/rest/courses/${searchParams.get('courseId')}`, {

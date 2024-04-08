@@ -1,11 +1,8 @@
-function course () {
-  
-}
-
-async function getCourseDetails() {
+async function course() {
   const searchParams = new URLSearchParams(window.location.search);
   console.log(searchParams.get('courseId'));
 
+  //get the corresponding course
   try {
     const response = await fetch(`/rest/courses/${searchParams.get('courseId')}`, {
       method: "GET"
@@ -25,8 +22,11 @@ async function getCourseDetails() {
       }[]
     } = await response.json();
 
-    console.log(course);
+    //get course name
+    const courseName = document.getElementById("coName") as HTMLElement;
+    courseName.textContent = course.name;
 
+    //toggle activate button
     if (course.isActive == true) {
       document.getElementById("coActivate")!.innerText = "Deactivate";
     } else {
@@ -35,27 +35,10 @@ async function getCourseDetails() {
 
     document.getElementById("coActivate")!.addEventListener("click", async function () {
       if (course.isActive == true) {
-        await changeActivate(false);
+        await activateCourse(false);
       } else {
-        await changeActivate(true);
+        await activateCourse(true);
       }
-    });
-
-    const courseName = document.getElementById("coName") as HTMLElement;
-    courseName.textContent = course.name;
-
-    const enrolledStudentTableBody = document.getElementById("coTable")!.children[1];
-
-    course.students.forEach((student) => {
-      const row = document.createElement("tr");
-      const isActive = student.isActive ? 'checked' : '';
-      row.innerHTML = `
-        <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
-        <td>${student.name}</td>
-        <td><input type="checkbox" disabled="true" ${isActive}></td>
-        
-    `;
-      enrolledStudentTableBody.appendChild(row);
     });
 
     const studentTableBody = document.getElementById("courseDetailsTable")!.children[1];
@@ -69,9 +52,22 @@ async function getCourseDetails() {
         `;
     studentTableBody.appendChild(row);
 
+    const enrolledStudentTableBody = document.getElementById("coTable")!.children[1];
+    course.students.forEach((student) => {
+      const row = document.createElement("tr");
+      const isActive = student.isActive ? 'checked' : '';
+      row.innerHTML = `
+        <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
+        <td>${student.name}</td>
+        <td><input type="checkbox" disabled="true" ${isActive}></td>
+        
+    `;
+      enrolledStudentTableBody.appendChild(row);
+    });
+
     const generatePaymentButton = document.getElementById("generatePaymentButton") as HTMLButtonElement;
     generatePaymentButton.addEventListener("click", async () => {
-      
+
       const result = await generatePayments();
       if (result !== false) {
         alert(result.message);
@@ -80,9 +76,7 @@ async function getCourseDetails() {
   } catch (error) {
     console.error("Error:", error);
   }
-
 }
-getCourseDetails()
 
 function getMonthYear2(date: Date) {
   console.log(date);
@@ -92,7 +86,7 @@ function getMonthYear2(date: Date) {
   return `${month} ${year}`;
 }
 
-async function changeActivate(state: boolean) {
+async function activateCourse(state: boolean) {
   try {
     const searchParams = new URLSearchParams(window.location.search);
     const response = await fetch(`/rest/courses/${searchParams.get('courseId')}`, {
