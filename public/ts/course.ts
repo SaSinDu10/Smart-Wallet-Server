@@ -1,3 +1,7 @@
+function course () {
+  
+}
+
 async function getCourseDetails() {
   const searchParams = new URLSearchParams(window.location.search);
   console.log(searchParams.get('courseId'));
@@ -44,10 +48,11 @@ async function getCourseDetails() {
 
     course.students.forEach((student) => {
       const row = document.createElement("tr");
+      const isActive = student.isActive ? 'checked' : '';
       row.innerHTML = `
         <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
         <td>${student.name}</td>
-        <td>${student.isActive}</td>
+        <td><input type="checkbox" disabled="true" ${isActive}></td>
         
     `;
       enrolledStudentTableBody.appendChild(row);

@@ -1,3 +1,7 @@
+function students () {
+
+}
+
 function showDialog() {
   const dialog = document.getElementById("regStudent") as HTMLDialogElement;
   dialog.showModal();

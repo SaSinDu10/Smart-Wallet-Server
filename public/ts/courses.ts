@@ -39,13 +39,14 @@ async function getCourses() {
             const coursesTableBody = document.getElementById("myTable")!.children[1];
             courses.forEach((course) => {
                 const row = document.createElement("tr");
+                const isActive = course.isActive ? 'checked' : '';
                 const dateCellContent = course.lastPaymentGeneration ?
                 getMonthYear3(new Date(course.lastPaymentGeneration)) :
                     `<button onclick="generatePayment('${course.id}')">Generate Payment</button>`;
                 row.innerHTML = `
                     <td><a href="course.html?courseId=${course.id}">${course.id}</a></td>
                     <td>${course.name}</td>
-                    <td>${course.isActive}</td>
+                    <td><input type="checkbox" disabled="true" ${isActive}></td>
                     <td>${dateCellContent}</td>
     `;
                 coursesTableBody.appendChild(row);

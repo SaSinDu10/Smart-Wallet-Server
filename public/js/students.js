@@ -1,4 +1,6 @@
 "use strict";
+function students() {
+}
 function showDialog() {
     const dialog = document.getElementById("regStudent");
     dialog.showModal();
