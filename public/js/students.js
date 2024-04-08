@@ -24,10 +24,11 @@ async function getStudents() {
             const studentsTableBody = document.getElementById("myTable").children[1];
             students.forEach((student) => {
                 const row = document.createElement("tr");
+                const isActive = student.isActive ? 'checked' : '';
                 row.innerHTML = `
                     <td><a href="student.html?studentId=${student.id}">${student.id}</a></td>
                     <td>${student.name}</td>
-                    <td>${student.isActive}</td>
+                    <td><input type="checkbox" disabled="true" ${isActive}></td>
                     
                 `;
                 studentsTableBody.appendChild(row);

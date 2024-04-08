@@ -35,9 +35,10 @@ async function main() {
 
         const studentTableBody = document.getElementById("stTable")!.children[1];
         const row = document.createElement("tr");
+        const isActiveLabel = student.isActive ? "Active Student" : "Inactive student";
         row.innerHTML = `
             <td>${student.id}</td>
-            <td>${student.isActive}</td>  
+            <td>${isActiveLabel}</td>  
         `;
         studentTableBody.appendChild(row);
 
@@ -67,11 +68,12 @@ async function main() {
 
         const coursesTableBody = document.getElementById("coTable")!.children[1];
         student.courses.forEach((course) => {
+            const isActive = course.isActive ? 'checked' : '';
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><a href="course.html?courseId=${course.id}">${course.id}</a></td>
                 <td>${course.name}</td>
-                <td>${course.isActive}</td>
+                <td><input type="checkbox" disabled="true" ${isActive}></td>
                 <td><button onclick="removeCourse('${course.id}')">Remove</button></td>
             `;
             coursesTableBody.appendChild(row);
@@ -110,7 +112,7 @@ async function main() {
                 payments.forEach((payment) => {
                     const date = new Date()
                     const payDate = payment.payedTime ? new Date(payment.payedTime) : null;
-                    const isPaymentDone = payment.payedTime ? "Done" : "Not Yet";
+                    const isPaymentDone = payment.payedTime ? 'checked' : '';
                     const row = document.createElement("tr");
 
                     if (payDate) {
@@ -118,7 +120,7 @@ async function main() {
                             <td>${payment.id}</td>
                             <td>${getMonthYear(payDate)}</td>
                             <td>${getPaidTime(payDate)}</td>
-                            <td>${isPaymentDone}</td>
+                            <td><input type="checkbox" disabled="true" ${isPaymentDone}></td>
                         `;
                     } else {
                         const markAsPaidButton = document.createElement("button");

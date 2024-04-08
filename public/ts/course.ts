@@ -24,9 +24,9 @@ async function getCourseDetails() {
     console.log(course);
 
     if (course.isActive == true) {
-      document.getElementById("coActivate")!.innerText = "Deactivete";
+      document.getElementById("coActivate")!.innerText = "Deactivate";
     } else {
-      document.getElementById("coActivate")!.innerText = "Activete";
+      document.getElementById("coActivate")!.innerText = "Activate";
     }
 
     document.getElementById("coActivate")!.addEventListener("click", async function () {
@@ -67,7 +67,7 @@ async function getCourseDetails() {
     const generatePaymentButton = document.getElementById("generatePaymentButton") as HTMLButtonElement;
     generatePaymentButton.addEventListener("click", async () => {
       
-      const result = await genaratePayments();
+      const result = await generatePayments();
       if (result !== false) {
         alert(result.message);
       }
@@ -117,7 +117,7 @@ async function changeActivate(state: boolean) {
 }
 
 
-async function genaratePayments() {
+async function generatePayments() {
   const searchParams = new URLSearchParams(window.location.search);
   const courseId = searchParams.get('courseId');
 
