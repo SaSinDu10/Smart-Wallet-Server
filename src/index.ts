@@ -1,4 +1,3 @@
-
 import * as express from "express";
 import * as cors from "cors";
 import { PrismaClient } from "@prisma/client";
@@ -217,8 +216,6 @@ app.get('/rest/payments', async (req, res) => {
     }
 })
 
-
-
 //assignCourseToStudent
 app.post('/rest/students/:studentId/courses/:courseId', async (req, res) => {
     try {
@@ -362,8 +359,9 @@ app.delete('/rest/students/:studentId/courses/:courseId', async (req, res) => {
     }
 })
 
+app.use('/react',express.static('public/react'));
+app.use('/pure',express.static('public/pure'));
 
-app.use(express.static('public'));
 
 //port
 const PORT = process.env.PORT || 5000;
